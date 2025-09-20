@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 export function RedactlyApp() {
   const [fileQueue, setFileQueue] = useState<QueuedFile[]>([]);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
-  const [useLLM, setUseLLM] = useState(true);
+  const [useLLM, setUseLLM] = useState(false); // LLM detection OFF by default
 
   useFileProcessor(fileQueue, setFileQueue, useLLM);
 
@@ -36,7 +36,7 @@ export function RedactlyApp() {
 
     setFileQueue((prev) => [...prev, ...uniqueNewFiles].slice(0, 30));
   };
-  
+
   const handleRemoveFile = (id: string) => {
     setFileQueue((prev) => prev.filter((f) => f.id !== id));
     if (activeFileId === id) {
@@ -46,11 +46,11 @@ export function RedactlyApp() {
 
   const updateFileInQueue = (id: string, updates: Partial<QueuedFile>) => {
     setFileQueue(prev => prev.map(f => {
-        if (f.id === id) {
-            // CRITICAL FIX: Ensure the original file object is preserved when updating
-            return { ...f, ...updates };
-        }
-        return f;
+      if (f.id === id) {
+        // CRITICAL FIX: Ensure the original file object is preserved when updating
+        return { ...f, ...updates };
+      }
+      return f;
     }));
   };
 
@@ -69,13 +69,13 @@ export function RedactlyApp() {
       }
     });
   };
-  
+
   const selectFirstCompletedFile = () => {
     if (fileQueue.length > 0 && !activeFileId) {
-       const firstCompleted = fileQueue.find(f => f.status === 'completed' || f.status === 'redacted');
-       if (firstCompleted) {
-         setActiveFileId(firstCompleted.id);
-       }
+      const firstCompleted = fileQueue.find(f => f.status === 'completed' || f.status === 'redacted');
+      if (firstCompleted) {
+        setActiveFileId(firstCompleted.id);
+      }
     }
   };
 
@@ -89,18 +89,18 @@ export function RedactlyApp() {
       <div className="md:w-1/3 lg:w-1/4 flex flex-col gap-4">
         <FileUploader onFilesAdded={handleFilesAdded} fileCount={fileQueue.length} />
         <div className="flex items-center space-x-2 bg-card border p-3 rounded-lg">
-            <Switch id="use-llm" checked={useLLM} onCheckedChange={setUseLLM} />
-            <Label htmlFor="use-llm" className="cursor-pointer">Use LLM for Detection</Label>
+          <Switch id="use-llm" checked={useLLM} onCheckedChange={setUseLLM} />
+          <Label htmlFor="use-llm" className="cursor-pointer">Use LLM for Detection</Label>
         </div>
         {fileQueue.length > 0 && (
           <div className="bg-card border rounded-lg p-4 flex flex-col gap-2">
             <div className="flex justify-between items-center">
               <h3 className="font-semibold">Upload Queue ({fileQueue.length})</h3>
               {completedFiles.length > 1 && (
-                 <Button variant="outline" size="sm" onClick={handleDownloadAll}>
-                   <Download className="mr-2 h-4 w-4" />
-                   Download All
-                 </Button>
+                <Button variant="outline" size="sm" onClick={handleDownloadAll}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download All
+                </Button>
               )}
             </div>
             <ScrollArea className="h-[calc(100vh-25rem)] pr-3">

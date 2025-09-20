@@ -1,6 +1,6 @@
 import { RedactlyApp } from "@/components/redactly/redactly-app";
-import { Logo } from "@/components/icons/logo";
-
+import Logo
+ from "@/components/icon/icon";
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
