@@ -6,7 +6,7 @@ import { useEffect, useCallback } from "react";
 import type { QueuedFile, PIIEntity, ProcessingResult, BackendPIIEntity, BackendSignature, SignatureEntity, OcrBlock } from "@/lib/types";
 import { v4 as uuidv4 } from "uuid";
 
-const API_BASE_URL = 'https://et-backend-157136045061.us-central1.run.app';
+const API_BASE_URL = 'https://pii-backend-906584863657.asia-south1.run.app/';
 
 export function useFileProcessor(
   fileQueue: QueuedFile[],
@@ -27,12 +27,12 @@ export function useFileProcessor(
         const formData = new FormData();
         formData.append("file", file.file);
         formData.append("use_llm", String(useLLM));
-        
+
         updateFile(file.id, { status: "processing" });
 
         const response = await fetch(`${API_BASE_URL}/process_document`, {
-            method: 'POST',
-            body: formData,
+          method: 'POST',
+          body: formData,
         });
 
         if (!response.ok) {
@@ -41,11 +41,11 @@ export function useFileProcessor(
         }
 
         const resultData: ProcessingResult = await response.json();
-        
+
         const piiEntities: PIIEntity[] = [];
         const signatureEntities: SignatureEntity[] = [];
         const defaultSelections = new Set<string>();
-        
+
         // Process PII entities
         if (resultData.pii_detection) {
           resultData.pii_detection.forEach((p: BackendPIIEntity) => {
@@ -59,7 +59,7 @@ export function useFileProcessor(
             defaultSelections.add(entityId);
           });
         }
-        
+
         // Process signatures
         if (resultData.signatures) {
           resultData.signatures.forEach((s: BackendSignature) => {
@@ -77,13 +77,13 @@ export function useFileProcessor(
         // Extract OCR text
         let ocrText = '';
         if (resultData.ocr && resultData.ocr.pages) {
-            resultData.ocr.pages.forEach(page => {
-                page.blocks.forEach((block: OcrBlock) => {
-                    ocrText += block.text + '\n';
-                });
+          resultData.ocr.pages.forEach(page => {
+            page.blocks.forEach((block: OcrBlock) => {
+              ocrText += block.text + '\n';
             });
+          });
         }
-        
+
         updateFile(file.id, {
           status: "completed",
           result: { ...resultData, ocrText, rawResponse: JSON.stringify(resultData, null, 2) },
